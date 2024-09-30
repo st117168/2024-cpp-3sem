@@ -1,5 +1,4 @@
-#include<iostream>
-#include"TextEditor.h"
+#include"text-editor.h"
 
 int main(int argc, char* argv[])
 {

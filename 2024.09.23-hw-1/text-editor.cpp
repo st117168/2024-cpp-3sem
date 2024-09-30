@@ -1,4 +1,4 @@
-#include"TextEditor.h"
+#include"text-editor.h"
 
 TextEditor::TextEditor() : _text(""), _position(0) {}
 

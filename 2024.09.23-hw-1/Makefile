@@ -1,8 +1,8 @@
-program: main.o TextEditor.o
-	g++ main.o TextEditor.o -o program
+program: main.o text-editor.o
+	g++ main.o text-editor.o -o program
 main.o: main.cpp
 	g++ -c 	main.cpp
-TextEditor.o: TextEditor.cpp
-	g++ -c 	TextEditor.cpp
+text-editor.o: text-editor.cpp
+	g++ -c 	text-editor.cpp
 clean:
 	rm program *.o
