@@ -18,7 +18,7 @@ void BankAccount::Withdraw(double amount)
 	else
 	{
 		balance -= amount;
-		printf("Снято со счета: %.2lf\n", amount);
+		printf("Снято со счета %s: %.2lf\n", accountNumber.c_str(), amount);
 	}
 }
 

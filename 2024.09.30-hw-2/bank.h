@@ -7,11 +7,11 @@
 class Bank
 {
 public:
-	void AddAccount(BankAccount account);
+	void AddAccount(BankAccount* account);
 	double GetTotalBalance();
 	void PrintAllAccounts();
 private:
-	std::vector<BankAccount> accounts;
+	std::vector<BankAccount*> accounts;
 };
 
 #endif
