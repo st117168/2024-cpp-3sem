@@ -3,7 +3,6 @@
 
 int main(int argc, char* argv[])
 {
-	setlocale(LC_ALL, "Russian");
 	BankAccount acc1("001", 104.50, "Pavel");
 	BankAccount acc2("002", 500, "Artem");
 	BankAccount acc3("003", 426.12, "Den");
@@ -22,7 +21,7 @@ int main(int argc, char* argv[])
 	acc4.Withdraw(43000);
 
 	bank.PrintAllAccounts();
-	printf("Общий баланс: %.2lf\n", bank.GetTotalBalance());
+	printf("Total balance: %.2lf\n", bank.GetTotalBalance());
 
 	return 0;
 }

@@ -3,7 +3,7 @@
 void Bank::AddAccount(BankAccount* account)
 {
 	accounts.push_back(account);
-	printf("Добавлен счет %s\n", (*account).GetAccountNumber().c_str());
+	printf("Added account %s\n", (*account).GetAccountNumber().c_str());
 }
 
 double Bank::GetTotalBalance()
@@ -18,7 +18,7 @@ double Bank::GetTotalBalance()
 
 void Bank::PrintAllAccounts()
 {
-	std::cout << "Информация о всех счетах:\n";
+	std::cout << "Information about all accounts:\n";
 	for (int i = 0; i < accounts.size(); ++i)
 	{
 		accounts[i]->PrintAccountInfo();

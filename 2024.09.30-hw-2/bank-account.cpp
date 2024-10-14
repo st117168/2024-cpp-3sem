@@ -6,19 +6,19 @@ BankAccount::BankAccount(std::string accNumber, double bal, std::string accHolde
 void BankAccount::Deposit(double amount)
 {
 	balance += amount;
-	printf("Добавлено на счет %s: %.2lf\n", accountNumber.c_str(), amount);
+	printf("Added to account %s: %.2lf\n", accountNumber.c_str(), amount);
 }
 
 void BankAccount::Withdraw(double amount)
 {
 	if (amount > balance)
 	{
-		std::cout << "Недостаточно средств на счете.\n";
+		std::cout << "Not enough money in the account.\n";
 	}
 	else
 	{
 		balance -= amount;
-		printf("Снято со счета %s: %.2lf\n", accountNumber.c_str(), amount);
+		printf("Withdrawn from account %s: %.2lf\n", accountNumber.c_str(), amount);
 	}
 }
 
@@ -39,6 +39,6 @@ std::string BankAccount::GetAccountNumber()
 
 void BankAccount::PrintAccountInfo()
 {
-	printf("Номер счета: %s\nВладелец: %s\nБаланс: %.2lf\n",
+	printf("Account number: %s\nOwner: %s\nBalance: %.2lf\n",
 		accountNumber.c_str(), accountHolder.c_str(), balance);
 }
