@@ -3,7 +3,7 @@ RM = rm
 CC = g++
 
 SRC = $(wildcard *.cpp)
-OBJ = $(patsubst %.c, %.o, $(SRC))
+OBJ = $(patsubst %.cpp, %.o, $(SRC))
 
 $(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $(TARGET)
