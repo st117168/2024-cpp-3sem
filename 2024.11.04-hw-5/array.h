@@ -6,21 +6,23 @@
 template <class T>
 class Array
 {
-	static const size_t size = 5;
-	T array[size]{ 0 };
+	static const size_t kSize = 5;
+	T array[kSize]{ 0 };
 public:
 	Array() {};
-	Array(T* b);
+	Array(T* b, size_t size);
 	void show();
 	T& minimum(Array<T>& m);
 };
 
 template<class T>
-inline Array<T>::Array(T* b)
+inline Array<T>::Array(T* b, size_t size)
 {
-	for (int i = 0; i < size; ++i)
+	size_t i = 0;
+	while (i < size && i < kSize)
 	{
 		array[i] = b[i];
+		++i;
 	}
 }
 
@@ -37,12 +39,12 @@ void Array<T>::show()
 template<class T>
 T& Array<T>::minimum(Array<T>& m)
 {
-	T& minEl = m.array[0];
+	T& min_elem = m.array[0];
 	for (T& el : m.array)
 	{
-		minEl = (el < minEl ? el : minEl);
+		min_elem = (el < min_elem ? el : min_elem);
 	}
-	return minEl;
+	return min_elem;
 }
 
 #endif
