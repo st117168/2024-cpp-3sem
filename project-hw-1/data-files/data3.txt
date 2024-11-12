@@ -1,0 +1,6 @@
+1 qwe 1.1 1 q w e 3.13
+2 asd 2.2 6 t r w 4.122
+3 zxc 3.3 7 k h f 0.0
+1 qwe 1.1 1 q w e 3.13
+2 asd 2.2 6 t r w 4.122
+3 zxc 3.3 7 k h f 0.0
