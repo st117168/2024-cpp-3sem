@@ -15,7 +15,7 @@ DataLine::DataLine(std::string line, char delimiter, size_t size) : delimiter(de
 
 std::string DataLine::operator[](size_t index) const
 {
-	if (index >= size || index < 0 || index >= data.size())
+	if (index >= size || index >= data.size())
 	{
 		return "index out of range";
 	}
@@ -49,7 +49,7 @@ void Dataset::Remove(size_t index)
 	{
 		return;
 	}
-	if (index < 0 || index >= data_->size || data_->size == 0)
+	if (index >= data_->size || data_->size == 0)
 	{
 		return;
 	}
@@ -102,7 +102,7 @@ Dataset::Dataset(std::string FilePath, bool IndexColumnExistsInFile, DataLine Co
 {
 	data_ = nullptr;
 	size_ = 0;
-	delimiter_for_print = '\t';
+	delimiter_for_print_ = '\t';
 
 	//file type determine
 	std::string typef = "";
@@ -212,15 +212,15 @@ void Dataset::PrintData() const
 	{
 		return;
 	}
-	std::cout << 'i' << delimiter_for_print;
+	std::cout << 'i' << delimiter_for_print_;
 	for (size_t i = 0; i < size_ - 1; ++i)
 	{
-		std::cout << data_[i].name << delimiter_for_print;
+		std::cout << data_[i].name << delimiter_for_print_;
 	}
 	std::cout << data_[size_ - 1].name << '\n';
 	for (size_t i = 0; i < data_->size; ++i)
 	{
-		std::cout << i << delimiter_for_print << (*this)[i] << '\n';
+		std::cout << i << delimiter_for_print_ << (*this)[i] << '\n';
 	}
 	std::cout << '\n';
 }
@@ -304,7 +304,7 @@ DataLine Dataset::operator[](size_t index) const
 	{
 		return DataLine("index out of range");
 	}
-	if (data_->size == 0 || index < 0 || index >= data_->size)
+	if (data_->size == 0 || index >= data_->size)
 	{
 		return DataLine("index out of range");
 	}
@@ -313,15 +313,15 @@ DataLine Dataset::operator[](size_t index) const
 	{
 		if (data_[i].type == "int")
 		{
-			ss << ((int*)data_[i].value)[index] << delimiter_for_print;
+			ss << ((int*)data_[i].value)[index] << delimiter_for_print_;
 		}
 		else if (data_[i].type == "double")
 		{
-			ss << ((double*)data_[i].value)[index] << delimiter_for_print;
+			ss << ((double*)data_[i].value)[index] << delimiter_for_print_;
 		}
 		else if (data_[i].type == "string")
 		{
-			ss << ((std::string*)data_[i].value)[index] << delimiter_for_print;
+			ss << ((std::string*)data_[i].value)[index] << delimiter_for_print_;
 		}
 	}
 	if (data_[size_ - 1].type == "int")
@@ -336,18 +336,18 @@ DataLine Dataset::operator[](size_t index) const
 	{
 		ss << ((std::string*)data_[size_ - 1].value)[index];
 	}
-	DataLine output_line(ss.str(), delimiter_for_print, size_);
+	DataLine output_line(ss.str(), delimiter_for_print_, size_);
 	return output_line;
 }
 
 void Dataset::ChangeDelimiterForPrint(char delimiter)
 {
-	delimiter_for_print = delimiter;
+	delimiter_for_print_ = delimiter;
 }
 
-void Dataset::Head(size_t n)
+void Dataset::Head(size_t n) const
 {
-	if (data_ == nullptr || n < 1)
+	if (data_ == nullptr)
 	{
 		return;
 	}
@@ -355,22 +355,22 @@ void Dataset::Head(size_t n)
 	{
 		n = data_->size;
 	}
-	std::cout << 'i' << delimiter_for_print;
+	std::cout << 'i' << delimiter_for_print_;
 	for (size_t i = 0; i < size_ - 1; ++i)
 	{
-		std::cout << data_[i].name << delimiter_for_print;
+		std::cout << data_[i].name << delimiter_for_print_;
 	}
 	std::cout << data_[size_ - 1].name << '\n';
 	for (size_t i = 0; i < n; ++i)
 	{
-		std::cout << i << delimiter_for_print << (*this)[i] << '\n';
+		std::cout << i << delimiter_for_print_ << (*this)[i] << '\n';
 	}
 	std::cout << '\n';
 }
 
-void Dataset::Tail(size_t n)
+void Dataset::Tail(size_t n) const
 {
-	if (data_ == nullptr || n < 1)
+	if (data_ == nullptr)
 	{
 		return;
 	}
@@ -378,15 +378,15 @@ void Dataset::Tail(size_t n)
 	{
 		n = data_->size;
 	}
-	std::cout << 'i' << delimiter_for_print;
+	std::cout << 'i' << delimiter_for_print_;
 	for (size_t i = 0; i < size_ - 1; ++i)
 	{
-		std::cout << data_[i].name << delimiter_for_print;
+		std::cout << data_[i].name << delimiter_for_print_;
 	}
 	std::cout << data_[size_ - 1].name << '\n';
 	for (size_t i = data_->size - n; i < data_->size; ++i)
 	{
-		std::cout << i << delimiter_for_print << (*this)[i] << '\n';
+		std::cout << i << delimiter_for_print_ << (*this)[i] << '\n';
 	}
 	std::cout << '\n';
 }
@@ -395,7 +395,7 @@ void Dataset::Insert(size_t index, DataLine data_line)
 {
 	if (data_ != nullptr)
 	{
-		if (index < 0 || index >= data_->size || data_->size == 0 || data_line.size != size_)
+		if (index >= data_->size || data_->size == 0 || data_line.size != size_)
 		{
 			return;
 		}
@@ -516,7 +516,7 @@ void Dataset::Insert(size_t index, DataLine data_line)
 std::string TypeOfFile(const std::string FilePath)
 {
 	std::string typef = "";
-	for (size_t i = FilePath.size() - 1; i > 0; --i)
+	for (size_t i = FilePath.size() - 1; i != 0; --i)
 	{
 		if (FilePath[i] == '.')
 		{
@@ -567,4 +567,188 @@ char DelimiterSymbol(std::string typef)
 		return ' ';
 	}
 	return ' ';
+}
+
+std::string Column::Max() const
+{
+	if (size == 0)
+	{
+		return "column is empty";
+	}
+	void* result = value;
+	if (type == "int")
+	{
+		static_cast<int*>(result);
+	}
+	else if (type == "double")
+	{
+		static_cast<double*>(result);
+	}
+	else if (type == "string")
+	{
+		static_cast<std::string*>(result);
+	}
+	else
+	{
+		return "type not allowed";
+	}
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (type == "int")
+		{
+			result = (*(int*)result < ((int*)value)[i] ? &((int*)value)[i] : result);
+		}
+		else if (type == "double")
+		{
+			result = (*(double*)result < ((double*)value)[i] ? &((double*)value)[i] : result);
+		}
+		else if (type == "string")
+		{
+			result = ((*(std::string*)result).size() < ((std::string*)value)[i].size() ? &((std::string*)value)[i] : result);
+		}
+	}
+	if (type == "int")
+	{
+		return std::to_string(*(int*)result);
+	}
+	else if (type == "double")
+	{
+		return std::to_string(*(double*)result);
+	}
+	else if (type == "string")
+	{
+		return *(std::string*)result;
+	}
+	return "error";
+}
+
+std::string Column::Min() const
+{
+	if (size == 0)
+	{
+		return "column is empty";
+	}
+	void* result = value;
+	if (type == "int")
+	{
+		static_cast<int*>(result);
+	}
+	else if (type == "double")
+	{
+		static_cast<double*>(result);
+	}
+	else if (type == "string")
+	{
+		static_cast<std::string*>(result);
+	}
+	else
+	{
+		return "type not allowed";
+	}
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (type == "int")
+		{
+			result = (*(int*)result > ((int*)value)[i] ? &((int*)value)[i] : result);
+		}
+		else if (type == "double")
+		{
+			result = (*(double*)result > ((double*)value)[i] ? &((double*)value)[i] : result);
+		}
+		else if (type == "string")
+		{
+			result = ((*(std::string*)result).size() > ((std::string*)value)[i].size() ? &((std::string*)value)[i] : result);
+		}
+	}
+	if (type == "int")
+	{
+		return std::to_string(*(int*)result);
+	}
+	else if (type == "double")
+	{
+		return std::to_string(*(double*)result);
+	}
+	else if (type == "string")
+	{
+		return *(std::string*)result;
+	}
+	return "error";
+}
+
+std::string Column::Average() const
+{
+	if (size == 0)
+	{
+		return "column is empty";
+	}
+	if (type != "int" && type != "double" && type != "string")
+	{
+		return "type not allowed";
+	}
+	long double sum = 0.0l;
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (type == "int")
+		{
+			sum += ((int*)value)[i];
+		}
+		else if (type == "double")
+		{
+			sum += ((double*)value)[i];
+		}
+		else if (type == "string")
+		{
+			sum += ((std::string*)value)[i].size();
+		}
+	}
+	sum /= size;
+	return std::to_string(sum);
+}
+
+std::string Column::StandardDeviation() const
+{
+	if (size == 0)
+	{
+		return "column is empty";
+	}
+	if (type != "int" && type != "double" && type != "string")
+	{
+		return "type not allowed";
+	}
+	long double result = 0.0l;
+	long double average = 0.0l;
+	average = stold(Average());
+	for (size_t i = 0; i < size; ++i)
+	{
+		if (type == "int")
+		{
+			result += powl(((int*)value)[i] - average, 2);
+		}
+		else if (type == "double")
+		{
+			result += powl(((double*)value)[i] - average, 2);
+		}
+		else if (type == "string")
+		{
+			result += powl(((std::string*)value)[i].size() - average, 2);
+		}
+
+	}
+	result /= size;
+	result = std::sqrtl(result);
+	return std::to_string(result);
+}
+
+void Dataset::Describe(std::string column_name) const
+{
+	for (size_t i = 0; i < size_; ++i)
+	{
+		if (data_[i].name == column_name)
+		{
+			printf("Description \"%s\" column:\nmin: %s\nmax: %s\naverage: %s\nstandart deviation: %s\n\n",
+				column_name.c_str(), data_[i].Max().c_str(), data_[i].Min().c_str(), data_[i].Average().c_str(), data_[i].StandardDeviation().c_str());
+			return;
+		}
+	}
+	std::cout << "describe error";
 }
