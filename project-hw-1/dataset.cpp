@@ -10,6 +10,7 @@ DataLine::DataLine(std::string line, char delimiter, size_t size) : delimiter(de
 	{
 		line.erase(line.begin());
 	}
+	line.erase(std::remove(line.begin(), line.end(), '\r' ), line.end());
 	data = line;
 }
 
@@ -29,7 +30,7 @@ std::string DataLine::operator[](size_t index) const
 	return output;
 }
 
-Column::Column() : value(nullptr), size(0), name(""), type("") {}
+Column::Column() : value(nullptr), size(0), name(""), type(TypeData::kNotDefined) {}
 
 Column::~Column()
 {
@@ -69,7 +70,7 @@ void Dataset::Remove(size_t index)
 			dataset_new.data_[j].size = dataset_new.data_->size;
 			dataset_new.data_[j].name = data_[j].name;
 			dataset_new.data_[j].type = data_[j].type;
-			if (data_[j].type == "int")
+			if (data_[j].type == TypeData::kInt)
 			{
 				if (dataset_new.data_[j].value == nullptr)
 				{
@@ -77,7 +78,7 @@ void Dataset::Remove(size_t index)
 				}
 				((int*)dataset_new.data_[j].value)[i] = ((int*)data_[j].value)[i + flag_remove];
 			}
-			else if (data_[j].type == "double")
+			else if (data_[j].type == TypeData::kDouble)
 			{
 				if (dataset_new.data_[j].value == nullptr)
 				{
@@ -85,7 +86,7 @@ void Dataset::Remove(size_t index)
 				}
 				((double*)dataset_new.data_[j].value)[i] = ((double*)data_[j].value)[i + flag_remove];
 			}
-			else if (data_[j].type == "string")
+			else if (data_[j].type == TypeData::kString)
 			{
 				if (dataset_new.data_[j].value == nullptr)
 				{
@@ -105,7 +106,7 @@ Dataset::Dataset(std::string FilePath, bool IndexColumnExistsInFile, DataLine Co
 	delimiter_for_print_ = '\t';
 
 	//file type determine
-	std::string typef = "";
+	TypeFile typef = TypeFile::kNotDefined;
 	typef = TypeOfFile(FilePath);
 
 	//open file
@@ -172,29 +173,29 @@ Dataset::Dataset(std::string FilePath, bool IndexColumnExistsInFile, DataLine Co
 			if (data_[i].value == nullptr)
 			{
 				data_[i].type = TypeOfVariable(value);
-				if (TypeOfVariable(value) == "int")
+				if (TypeOfVariable(value) == TypeData::kInt)
 				{
 					data_[i].value = new int[data_->size];
 				}
-				else if (TypeOfVariable(value) == "double")
+				else if (TypeOfVariable(value) == TypeData::kDouble)
 				{
 					data_[i].value = new double[data_->size];
 				}
-				else if (TypeOfVariable(value) == "string")
+				else if (TypeOfVariable(value) == TypeData::kString)
 				{
 					data_[i].value = new std::string[data_->size];
 				}
 			}
 
-			if (data_[i].type == "int")
+			if (data_[i].type == TypeData::kInt)
 			{
 				((int*)data_[i].value)[j] = stoi(value);
 			}
-			else if (data_[i].type == "double")
+			else if (data_[i].type == TypeData::kDouble)
 			{
 				((double*)data_[i].value)[j] = stod(value);
 			}
-			else if (data_[i].type == "string")
+			else if (data_[i].type == TypeData::kString)
 			{
 				((std::string*)data_[i].value)[j] = value;
 			}
@@ -225,6 +226,50 @@ void Dataset::PrintData() const
 	std::cout << '\n';
 }
 
+size_t Dataset::GetColumnCount() const
+{
+    return size_;
+}
+
+size_t Dataset::GetRowCount(size_t index) const
+{
+	if (data_ == nullptr)
+	{
+		return 0;
+	}
+	else if (index >= size_)
+	{
+		return 0;
+	}
+    return data_[index].size;
+}
+
+TypeData Dataset::GetColumnType(size_t index) const
+{
+	if (data_ == nullptr)
+	{
+		return TypeData::kNotDefined;
+	}
+	else if (index >= size_)
+	{
+		return TypeData::kNotDefined;
+	}
+    return data_[index].type;
+}
+
+std::string Dataset::GetColumnName(size_t index) const
+{
+	if (data_ == nullptr)
+	{
+		return "";
+	}
+	else if (index >= size_)
+	{
+		return "";
+	}
+    return data_[index].name;
+}
+
 void Dataset::dispose()
 {
 	if (data_ != nullptr)
@@ -234,15 +279,15 @@ void Dataset::dispose()
 
 			for (size_t i = 0; i < data_->size; ++i)
 			{
-				if (data_[i].type == "int")
+				if (data_[i].type == TypeData::kInt)
 				{
 					delete[](int*)data_[i].value;
 				}
-				else if (data_[i].type == "double")
+				else if (data_[i].type == TypeData::kDouble)
 				{
 					delete[](double*)data_[i].value;
 				}
-				else if (data_[i].type == "string")
+				else if (data_[i].type == TypeData::kString)
 				{
 					delete[](std::string*)data_[i].value;
 				}
@@ -266,27 +311,27 @@ Dataset& Dataset::operator=(const Dataset& dataset)
 			data_[j].size = data_->size;
 			data_[j].name = dataset.data_[j].name;
 			data_[j].type = dataset.data_[j].type;
-			if (dataset.data_[j].type == "int")
+			if (dataset.data_[j].type == TypeData::kInt)
 			{
-				data_[j].type = "int";
+				data_[j].type = TypeData::kInt;
 				if (data_[j].value == nullptr)
 				{
 					data_[j].value = new int[data_->size];
 				}
 				((int*)data_[j].value)[i] = ((int*)dataset.data_[j].value)[i];
 			}
-			else if (data_[j].type == "double")
+			else if (data_[j].type == TypeData::kDouble)
 			{
-				data_[j].type = "double";
+				data_[j].type = TypeData::kDouble;
 				if (data_[j].value == nullptr)
 				{
 					data_[j].value = new double[data_->size];
 				}
 				((double*)data_[j].value)[i] = ((double*)dataset.data_[j].value)[i];
 			}
-			else if (data_[j].type == "string")
+			else if (data_[j].type == TypeData::kString)
 			{
-				data_[j].type = "string";
+				data_[j].type = TypeData::kString;
 				if (data_[j].value == nullptr)
 				{
 					data_[j].value = new std::string[data_->size];
@@ -311,28 +356,28 @@ DataLine Dataset::operator[](size_t index) const
 	std::stringstream ss;
 	for (size_t i = 0; i < size_ - 1; ++i)
 	{
-		if (data_[i].type == "int")
+		if (data_[i].type == TypeData::kInt)
 		{
 			ss << ((int*)data_[i].value)[index] << delimiter_for_print_;
 		}
-		else if (data_[i].type == "double")
+		else if (data_[i].type == TypeData::kDouble)
 		{
 			ss << ((double*)data_[i].value)[index] << delimiter_for_print_;
 		}
-		else if (data_[i].type == "string")
+		else if (data_[i].type == TypeData::kString)
 		{
 			ss << ((std::string*)data_[i].value)[index] << delimiter_for_print_;
 		}
 	}
-	if (data_[size_ - 1].type == "int")
+	if (data_[size_ - 1].type == TypeData::kInt)
 	{
 		ss << ((int*)data_[size_ - 1].value)[index];
 	}
-	else if (data_[size_ - 1].type == "double")
+	else if (data_[size_ - 1].type == TypeData::kDouble)
 	{
 		ss << ((double*)data_[size_ - 1].value)[index];
 	}
-	else if (data_[size_ - 1].type == "string")
+	else if (data_[size_ - 1].type == TypeData::kString)
 	{
 		ss << ((std::string*)data_[size_ - 1].value)[index];
 	}
@@ -426,7 +471,7 @@ void Dataset::Insert(size_t index, DataLine data_line)
 				dataset_new.data_[j].size = dataset_new.data_->size;
 				dataset_new.data_[j].name = data_[j].name;
 				dataset_new.data_[j].type = data_[j].type;
-				if (data_[j].type == "int")
+				if (data_[j].type == TypeData::kInt)
 				{
 					if (dataset_new.data_[j].value == nullptr)
 					{
@@ -434,7 +479,7 @@ void Dataset::Insert(size_t index, DataLine data_line)
 					}
 					((int*)dataset_new.data_[j].value)[i + flag_add] = ((int*)data_[j].value)[i];
 				}
-				else if (data_[j].type == "double")
+				else if (data_[j].type == TypeData::kDouble)
 				{
 					if (dataset_new.data_[j].value == nullptr)
 					{
@@ -442,7 +487,7 @@ void Dataset::Insert(size_t index, DataLine data_line)
 					}
 					((double*)dataset_new.data_[j].value)[i + flag_add] = ((double*)data_[j].value)[i];
 				}
-				else if (data_[j].type == "string")
+				else if (data_[j].type == TypeData::kString)
 				{
 					if (dataset_new.data_[j].value == nullptr)
 					{
@@ -457,15 +502,15 @@ void Dataset::Insert(size_t index, DataLine data_line)
 		for (size_t i = 0; i < dataset_new.size_; ++i)
 		{
 			std::getline(ss, value, data_line.delimiter);
-			if (dataset_new.data_[i].type == "int")
+			if (dataset_new.data_[i].type == TypeData::kInt)
 			{
 				((int*)dataset_new.data_[i].value)[index] = stoi(value);
 			}
-			else if (dataset_new.data_[i].type == "double")
+			else if (dataset_new.data_[i].type == TypeData::kDouble)
 			{
 				((double*)dataset_new.data_[i].value)[index] = stod(value);
 			}
-			else if (dataset_new.data_[i].type == "string")
+			else if (dataset_new.data_[i].type == TypeData::kString)
 			{
 				((std::string*)dataset_new.data_[i].value)[index] = value;
 			}
@@ -484,28 +529,28 @@ void Dataset::Insert(size_t index, DataLine data_line)
 			std::getline(ss, value, data_line.delimiter);
 			data_[i].size = 1;
 			data_[i].type = TypeOfVariable(value);
-			if (TypeOfVariable(value) == "int")
+			if (TypeOfVariable(value) == TypeData::kInt)
 			{
 				data_[i].value = new int[data_->size];
 			}
-			else if (TypeOfVariable(value) == "double")
+			else if (TypeOfVariable(value) == TypeData::kDouble)
 			{
 				data_[i].value = new double[data_->size];
 			}
-			else if (TypeOfVariable(value) == "string")
+			else if (TypeOfVariable(value) == TypeData::kString)
 			{
 				data_[i].value = new std::string[data_->size];
 			}
 
-			if (data_[i].type == "int")
+			if (data_[i].type == TypeData::kInt)
 			{
 				*((int*)data_[i].value) = stoi(value);
 			}
-			else if (data_[i].type == "double")
+			else if (data_[i].type == TypeData::kDouble)
 			{
 				*((double*)data_[i].value) = stod(value);
 			}
-			else if (data_[i].type == "string")
+			else if (data_[i].type == TypeData::kString)
 			{
 				*((std::string*)data_[i].value) = value;
 			}
@@ -513,18 +558,26 @@ void Dataset::Insert(size_t index, DataLine data_line)
 	}
 }
 
-std::string TypeOfFile(const std::string FilePath)
+TypeFile TypeOfFile(const std::string FilePath)
 {
-	std::string typef = "";
+	std::string str = "";
 	for (size_t i = FilePath.size() - 1; i != 0; --i)
 	{
 		if (FilePath[i] == '.')
 		{
 			break;
 		}
-		typef = FilePath[i] + typef;
+		str = FilePath[i] + str;
 	}
-	return typef;
+	if (str == "txt")
+	{
+		return TypeFile::kTxt;
+	}
+	if (str == "csv")
+	{
+		return TypeFile::kCsv;
+	}
+	return TypeFile::kNotDefined;
 }
 
 size_t CountOfColumns(char delimiter, std::string line)
@@ -540,29 +593,29 @@ size_t CountOfColumns(char delimiter, std::string line)
 	return sum;
 }
 
-std::string TypeOfVariable(std::string str)
+TypeData TypeOfVariable(std::string str)
 {
 	for (char i : str)
 	{
 		if (i == '.')
 		{
-			return "double";
+			return TypeData::kDouble;
 		}
 		if (!(i >= '0' && i <= '9'))
 		{
-			return "string";
+			return TypeData::kString;
 		}
 	}
-	return "int";
+	return TypeData::kInt;
 }
 
-char DelimiterSymbol(std::string typef)
+char DelimiterSymbol(TypeFile typef)
 {
-	if (typef == "csv")
+	if (typef == TypeFile::kCsv)
 	{
 		return ',';
 	}
-	if (typef == "txt")
+	if (typef == TypeFile::kTxt)
 	{
 		return ' ';
 	}
@@ -576,15 +629,15 @@ std::string Column::Max() const
 		return "column is empty";
 	}
 	void* result = value;
-	if (type == "int")
+	if (type == TypeData::kInt)
 	{
 		static_cast<int*>(result);
 	}
-	else if (type == "double")
+	else if (type == TypeData::kDouble)
 	{
 		static_cast<double*>(result);
 	}
-	else if (type == "string")
+	else if (type == TypeData::kString)
 	{
 		static_cast<std::string*>(result);
 	}
@@ -594,28 +647,28 @@ std::string Column::Max() const
 	}
 	for (size_t i = 0; i < size; ++i)
 	{
-		if (type == "int")
+		if (type == TypeData::kInt)
 		{
 			result = (*(int*)result < ((int*)value)[i] ? &((int*)value)[i] : result);
 		}
-		else if (type == "double")
+		else if (type == TypeData::kDouble)
 		{
 			result = (*(double*)result < ((double*)value)[i] ? &((double*)value)[i] : result);
 		}
-		else if (type == "string")
+		else if (type == TypeData::kString)
 		{
 			result = ((*(std::string*)result).size() < ((std::string*)value)[i].size() ? &((std::string*)value)[i] : result);
 		}
 	}
-	if (type == "int")
+	if (type == TypeData::kInt)
 	{
 		return std::to_string(*(int*)result);
 	}
-	else if (type == "double")
+	else if (type == TypeData::kDouble)
 	{
 		return std::to_string(*(double*)result);
 	}
-	else if (type == "string")
+	else if (type == TypeData::kString)
 	{
 		return *(std::string*)result;
 	}
@@ -629,15 +682,15 @@ std::string Column::Min() const
 		return "column is empty";
 	}
 	void* result = value;
-	if (type == "int")
+	if (type == TypeData::kInt)
 	{
 		static_cast<int*>(result);
 	}
-	else if (type == "double")
+	else if (type == TypeData::kDouble)
 	{
 		static_cast<double*>(result);
 	}
-	else if (type == "string")
+	else if (type == TypeData::kString)
 	{
 		static_cast<std::string*>(result);
 	}
@@ -647,28 +700,28 @@ std::string Column::Min() const
 	}
 	for (size_t i = 0; i < size; ++i)
 	{
-		if (type == "int")
+		if (type == TypeData::kInt)
 		{
 			result = (*(int*)result > ((int*)value)[i] ? &((int*)value)[i] : result);
 		}
-		else if (type == "double")
+		else if (type == TypeData::kDouble)
 		{
 			result = (*(double*)result > ((double*)value)[i] ? &((double*)value)[i] : result);
 		}
-		else if (type == "string")
+		else if (type == TypeData::kString)
 		{
 			result = ((*(std::string*)result).size() > ((std::string*)value)[i].size() ? &((std::string*)value)[i] : result);
 		}
 	}
-	if (type == "int")
+	if (type == TypeData::kInt)
 	{
 		return std::to_string(*(int*)result);
 	}
-	else if (type == "double")
+	else if (type == TypeData::kDouble)
 	{
 		return std::to_string(*(double*)result);
 	}
-	else if (type == "string")
+	else if (type == TypeData::kString)
 	{
 		return *(std::string*)result;
 	}
@@ -681,22 +734,22 @@ std::string Column::Average() const
 	{
 		return "column is empty";
 	}
-	if (type != "int" && type != "double" && type != "string")
+	if (type != TypeData::kInt && type != TypeData::kDouble && type != TypeData::kString)
 	{
 		return "type not allowed";
 	}
 	long double sum = 0.0l;
 	for (size_t i = 0; i < size; ++i)
 	{
-		if (type == "int")
+		if (type == TypeData::kInt)
 		{
 			sum += ((int*)value)[i];
 		}
-		else if (type == "double")
+		else if (type == TypeData::kDouble)
 		{
 			sum += ((double*)value)[i];
 		}
-		else if (type == "string")
+		else if (type == TypeData::kString)
 		{
 			sum += ((std::string*)value)[i].size();
 		}
@@ -711,7 +764,7 @@ std::string Column::StandardDeviation() const
 	{
 		return "column is empty";
 	}
-	if (type != "int" && type != "double" && type != "string")
+	if (type != TypeData::kInt && type != TypeData::kDouble && type != TypeData::kString)
 	{
 		return "type not allowed";
 	}
@@ -720,22 +773,22 @@ std::string Column::StandardDeviation() const
 	average = stold(Average());
 	for (size_t i = 0; i < size; ++i)
 	{
-		if (type == "int")
+		if (type == TypeData::kInt)
 		{
 			result += powl(((int*)value)[i] - average, 2);
 		}
-		else if (type == "double")
+		else if (type == TypeData::kDouble)
 		{
 			result += powl(((double*)value)[i] - average, 2);
 		}
-		else if (type == "string")
+		else if (type == TypeData::kString)
 		{
 			result += powl(((std::string*)value)[i].size() - average, 2);
 		}
 
 	}
-	result /= size;
-	result = std::sqrtl(result);
+	result /= (size - 1);
+	result = sqrtl(result);
 	return std::to_string(result);
 }
 

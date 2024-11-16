@@ -2,8 +2,26 @@
 #define DATA_SET_H
 
 #include <string>
-#include <vector>
-#include<cmath>
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+enum class TypeData
+{
+    kInt,
+    kDouble,
+    kString,
+    kNotDefined
+};
+
+enum class TypeFile
+{
+    kTxt,
+    kCsv,
+    kNotDefined
+};
 
 struct DataLine
 {
@@ -20,7 +38,7 @@ struct DataLine
     
     std::string data;
     char delimiter;
-    size_t size; // count of columns
+    size_t size; // count of columns (elements)
 };
 
 struct Column {
@@ -32,15 +50,11 @@ struct Column {
     std::string Average() const;
     std::string StandardDeviation() const;
 
-    std::string type;
+    TypeData type;
     std::string name;
     size_t size;
     void* value;
 };
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
 
 class Dataset
 {
@@ -50,6 +64,11 @@ public:
     ~Dataset();
 
     void PrintData() const;
+    size_t GetColumnCount() const;
+    size_t GetRowCount(size_t index) const;
+    TypeData GetColumnType(size_t index) const;
+    std::string GetColumnName(size_t index) const;
+
     void Remove(size_t index);
     void Insert(size_t index, DataLine data_line);
     void ChangeDelimiterForPrint(char delimiter);
@@ -67,9 +86,9 @@ private:
     char delimiter_for_print_;
 };
 
-std::string TypeOfFile(const std::string FilePath);
+TypeFile TypeOfFile(const std::string FilePath);
 size_t CountOfColumns(char delimiter, std::string line);
-std::string TypeOfVariable(std::string str);
-char DelimiterSymbol(std::string typef);
+TypeData TypeOfVariable(std::string str);
+char DelimiterSymbol(TypeFile typef);
 
 #endif
